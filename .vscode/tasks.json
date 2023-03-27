@@ -1,0 +1,73 @@
+{
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "Make Build Output Dir",
+            "command": "mkdir",
+            "args": [
+                "-p",
+                "bin"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "type": "cppbuild",
+            "label": "Build Encoder",
+            "command": "gcc",
+            "args": [
+                "src/*.c",
+                "-DBASE64URL_ENCODER",
+                "-o",
+                "bin/base64urlencode"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "dependsOn": [
+                "Make Build Output Dir"
+            ]
+        },
+        {
+            "type": "cppbuild",
+            "label": "Build Decoder",
+            "command": "gcc",
+            "args": [
+                "src/*.c",
+                "-DBASE64URL_DECODER",
+                "-o",
+                "bin/base64urldecode"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build"
+            },
+            "dependsOn": [
+                "Make Build Output Dir"
+            ]
+        },
+        {
+            "label": "Build Both",
+            "dependsOn": [
+                "Build Encoder",
+                "Build Decoder"
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ],
+    "version": "2.0.0"
+}
