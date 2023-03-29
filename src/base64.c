@@ -9,7 +9,7 @@
 //
 
 // Standard Library Headers
-#include <strings.h>
+#include <string.h>
 
 // Declarations
 #include "base64.h"
@@ -35,8 +35,16 @@
 // Constants
 //
 
-// Gives the Base64URL output characters
+// Gives the Base64URL output characters, and the reverse lookup table
 static const char* base64url_alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+static const char base64url_reverse[] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+                                         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+                                         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 62, -1, -1, 52, 53, 54,
+                                         55, 56, 57, 58, 59, 60, 61, -1, -1, -1, -1, -1, -1, -1, 0, 1, 2, 3,
+                                         4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22,
+                                         23, 24, 25, -1, -1, -1, -1, 63, -1, 26, 27, 28, 29, 30, 31, 32, 33,
+                                         34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50,
+                                         51, -1, -1, -1, -1, -1};
 
 // Functions
 //
@@ -91,14 +99,6 @@ int base64url_encode(int(*has)(void), unsigned char(*get)(void), void(*output)(c
 
 int base64url_decode(int(*has)(void), unsigned char(*get)(void), void(*output)(const char)) {
 
-    // Build the reverse lookup table from the alphabet
-    char base64_reverse[128] = { 0 };
-    memset( base64_reverse, -1, sizeof( base64_reverse ) );
-    const size_t alphabet_len = strlen( base64url_alphabet );
-    for (size_t s = 0; s < alphabet_len; s++){
-        base64_reverse[base64url_alphabet[s]] = (int) s;
-    }
-
     char block[ENCODED_BLOCK_SIZE];
     do {
         // Read in the next block
@@ -118,8 +118,8 @@ int base64url_decode(int(*has)(void), unsigned char(*get)(void), void(*output)(c
         const char* encoded = block;
 
         // Get out the first two encoded characters
-        const char n1 = *(base64_reverse + *(encoded++));
-        const char n2 = *(base64_reverse + *(encoded++));
+        const char n1 = *(base64url_reverse + *(encoded++));
+        const char n2 = *(base64url_reverse + *(encoded++));
         r -= 2;
 
         // n1 contains the top six bits
@@ -132,7 +132,7 @@ int base64url_decode(int(*has)(void), unsigned char(*get)(void), void(*output)(c
 
         // n2 contains the top four bits
         // n3 contains the next four bits (or padding)
-        const char n3 = *(base64_reverse + *(encoded++));
+        const char n3 = *(base64url_reverse + *(encoded++));
         --r;
         const char c2 = ((n2 & MASK4) << 4) | ((n3 >> 2) & MASK4);
         output( c2 );
@@ -142,7 +142,7 @@ int base64url_decode(int(*has)(void), unsigned char(*get)(void), void(*output)(c
 
         // n3 contains the top two bits (or padding)
         // n4 contains the bottom six bits (or padding)
-        const char n4 = *(base64_reverse + *(encoded++));
+        const char n4 = *(base64url_reverse + *(encoded++));
         const char c3 = ((n3 << 6) & MASK5) | (n4 & MASK6);
         output( c3 );
     } while (has( ));
