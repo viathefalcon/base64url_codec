@@ -67,6 +67,77 @@
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "type": "shell",
+            "label": "Make Build Output Dir (Windows)",
+            "command": "mkdir",
+            "args": [
+                "bin",
+                "-force"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "type": "cppbuild",
+            "label": "Build Encoder (Windows)",
+            "command": "cl.exe",
+            "args": [
+                "/Zi",
+                "/EHsc",
+                "/nologo",
+                "/DBASE64URL_ENCODER",
+                "/MD",
+                "${workspaceFolder}\\src\\*.c",
+                "/Fe${workspaceFolder}\\bin\\base64urlencode.exe",
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}\\bin"
+            },
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "group": {
+                "kind": "build",
+            },
+            "dependsOn": ["Make Build Output Dir (Windows)"]
+        },
+        {
+            "type": "cppbuild",
+            "label": "Build Decoder (Windows)",
+            "command": "cl.exe",
+            "args": [
+                "/Zi",
+                "/EHsc",
+                "/nologo",
+                "/DBASE64URL_DECODER",
+                "/MD",
+                "${workspaceFolder}\\src\\*.c",
+                "/Fe${workspaceFolder}\\bin\\base64urldecode.exe",
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}\\bin"
+            },
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "group": {
+                "kind": "build",
+            },
+            "dependsOn": ["Make Build Output Dir (Windows)"]
+        },
+        {
+            "label": "Build Both (Windows)",
+            "dependsOn": [
+                "Build Encoder (Windows)",
+                "Build Decoder (Windows)"
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build"
+            }
         }
     ],
     "version": "2.0.0"
