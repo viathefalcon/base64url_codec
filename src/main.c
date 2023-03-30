@@ -41,21 +41,29 @@ unsigned char get(void) {
     return got;
 }
 
-// Gives the output callback passed to the codec
-void output(const char c) {
+#if defined(BASE64URL_ENCODER)
+// Gives the output callback passed to the encoder
+void base64url_encode_output(const char c) {
     putchar( c );
 }
+#elif defined(BASE64URL_DECODER)
+// Gives the output callback passed to the decoder
+void base64url_decode_output(const unsigned char uc) {
+    fwrite( &uc, sizeof( uc ), 1, stdout );
+}
+#endif
 
 // Gives the entry-point
 int main(int argc, const char * argv[]) {
 
+    int result = 1;
 #if defined(BASE64URL_ENCODER)
-    const int result = base64url_encode( has, get, output );
+    result = base64url_encode( has, get, base64url_encode_output );
 #if defined(DEBUG)
     putchar( '\n' );
 #endif
-#else
-    const int result = base64url_decode( has, get, output );
+#elif defined(BASE64URL_DECODER)
+    result = base64url_decode( has, get, base64url_decode_output );
 #endif
     return result;
 }

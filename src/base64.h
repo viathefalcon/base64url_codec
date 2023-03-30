@@ -15,6 +15,6 @@
 int base64url_encode(int(*has)(void), unsigned char(*get)(void), void(*output)(const char));
 
 // Decodes the given input from Base64 URL encoding, invoking the callback for each output byte
-int base64url_decode(int(*has)(void), unsigned char(*get)(void), void(*output)(const char));
+int base64url_decode(int(*has)(void), unsigned char(*get)(void), void(*output)(const unsigned char));
 
 #endif /* base64_h */

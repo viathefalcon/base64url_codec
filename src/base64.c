@@ -97,15 +97,18 @@ int base64url_encode(int(*has)(void), unsigned char(*get)(void), void(*output)(c
     return 0;
 }
 
-int base64url_decode(int(*has)(void), unsigned char(*get)(void), void(*output)(const char)) {
+int base64url_decode(int(*has)(void), unsigned char(*get)(void), void(*output)(const unsigned char)) {
 
     char block[ENCODED_BLOCK_SIZE];
     do {
         // Read in the next block
-        size_t r = 0;
+        int r = 0;
         while (r < ENCODED_BLOCK_SIZE){
             if (has( )){
-                *(block + (r++)) = get( );
+                const char c = *(base64url_reverse + get( ));
+                if (c >= 0){
+                    *(block + (r++)) = c;
+                }
                 continue;
             }
             break;
@@ -115,36 +118,33 @@ int base64url_decode(int(*has)(void), unsigned char(*get)(void), void(*output)(c
         if (r == 0){
             continue;
         }
-        const char* encoded = block;
-
-        // Get out the first two encoded characters
-        const char n1 = *(base64url_reverse + *(encoded++));
-        const char n2 = *(base64url_reverse + *(encoded++));
+        const char* next = block;
+        const int n1 = *(next++);
+        const int n2 = *(next++);
         r -= 2;
 
         // n1 contains the top six bits
         // n2 contains the bottom two bits
-        const char c1 = ((n1 << 2) & MASK1) | ((n2 >> 4) & MASK2);
-        output( c1 );
-        if (!r){
+        const unsigned char uc1 = (unsigned char)((n1 << 2) & MASK1) | ((n2 >> 4) & MASK2);
+        output( uc1 );
+        if (r < 1){
             continue;
         }
 
         // n2 contains the top four bits
         // n3 contains the next four bits (or padding)
-        const char n3 = *(base64url_reverse + *(encoded++));
-        --r;
-        const char c2 = ((n2 & MASK4) << 4) | ((n3 >> 2) & MASK4);
-        output( c2 );
-        if (!r){
+        const int n3 = *(next++);
+        const unsigned char uc2 = (unsigned char)((n2 & MASK4) << 4) | ((n3 >> 2) & MASK4);
+        output( uc2 );
+        if (--r < 1){
             continue;
         }
 
         // n3 contains the top two bits (or padding)
         // n4 contains the bottom six bits (or padding)
-        const char n4 = *(base64url_reverse + *(encoded++));
-        const char c3 = ((n3 << 6) & MASK5) | (n4 & MASK6);
-        output( c3 );
+        const int n4 = *(next++);
+        const unsigned char uc3 = (unsigned char)((n3 << 6) & MASK5) | (n4 & MASK6);
+        output( uc3 );
     } while (has( ));
     return 0;
 }
