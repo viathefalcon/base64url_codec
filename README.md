@@ -1,4 +1,4 @@
-# base64url_codec
+# Base64URL (En)coder/decoder
 
 My current work involves dealing with quite a bit of [Base64URL-encoded data](https://jwt.io/), so I thought it would be useful to have some tools that can work with it, locally and natively (on Windows, macOS and Linux).
 
